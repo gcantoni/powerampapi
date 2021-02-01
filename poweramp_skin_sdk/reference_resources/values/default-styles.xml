@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (C) 2010-2018 Maksim Petrov
+Copyright (C) 2010-2020 Maksim Petrov
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted for themes, skins, widgets, plugins, applications and other software
-which communicate with Poweramp music player application on Android platform.
+which communicate with Poweramp music player or Poweramp Equalizer applications on Android platform.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -22,19 +22,51 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <!-- values -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<!-- NOTE: dialog styles are in separate xml file (e.g. default_styles_dialogs.xml) -->		 
-	<!-- NOTE: using app compat theme to avoid unexpected OEM system theme overrides  -->
-	
-	<style name="Base_ActivityTheme_Default" parent="@style/Theme.AppCompat.Light">
-				
+	<!-- NOTE: dialog styles are in the separate xml file (e.g. default_styles_dialogs.xml), but they still "derive" app theme		 
+	     NOTE: using app compat theme to avoid unexpected OEM system theme overrides (though, for SDK=21+, most of such styles use system material theme anyway)
+	     NOTE: main activity theme applied in multiple steps:
+	     
+	                  BasePoweruiStyles
+	                          |
+	                  TopPoweruiStyles
+	                          |
+         global Option* styles (if forceGlobalOptions=false) 
+	                          |
+                      ActivityTheme_*
+	                          |
+        global Option* styles (if forceGlobalOptions=true)
+                              |       
+                        skin options
+
+	-->
+	     
+
+	<style name="Base_ActivityTheme_Core" parent="@style/Theme.AppCompat.Light">
 		<item name="OptionRatingStars">@style/OptionRatingStars</item>
+		<item name="OptionRatingStarsMenu">@style/OptionRatingStarsMenu</item>
 		<item name="OptionRatingLikeUnlike">@style/OptionRatingLikeUnlike</item>
 		<item name="OptionCounter">@style/OptionCounter</item>
+		<item name="OptionCCDisabled">@style/OptionCCDisabled</item><!-- See also CcButton_MainUI/CcButton_NavbarExtensionMenuLine -->
+		<item name="OptionCCInMenu">@style/OptionCCInMenu</item>
+		<item name="OptionCCMainUIButton">@style/OptionCCMainUIButton</item>
+		<item name="OptionCCMainUIAndInMenu">@style/OptionCCMainUIAndInMenu</item>
+		<item name="OptionHeaderMeta">@style/OptionHeaderMeta</item>
+		<item name="OptionHideMenu">@style/OptionHideMenu</item>		
+		<item name="OptionAAKeepAspect">@style/OptionAAKeepAspect</item>
+		<item name="OptionAACrop">@style/OptionAACrop</item>
 		
 		<item name="BasePoweruiStyles">@style/BasePoweruiStyles</item>			
-		<item name="TopPoweruiStyles">@style/TopPoweruiStyles</item>		
+		<item name="TopPoweruiStyles">@style/TopPoweruiStyles</item>
+		<!-- Additional theme styles applied for Poweramp Equalizer. Can be overridden by skins as required -->		
+		<item name="PeqStyles">@style/PeqStyles</item>
+		
 		<item name="DialogForcedStyle">@style/Default_BaseDialogForcedStyle</item>
+		<item name="DialogForceLightSystemUIStyle">@style/Default_DialogForceLightSystemUIStyle</item><!-- Used to invert system ui in dialogs to dark -->
+		<item name="DialogForceDarkSystemUIStyle">@style/Default_DialogForceDarkSystemUIStyle</item><!-- Used to invert system ui in dialogs to dark -->
+		<item name="Dialog_textAppearance">@style/TextAppearance.AppCompat</item>
+		<item name="Dialog_textAppearanceSmall">@style/TextAppearance.AppCompat.Small</item>
 				
+		<item name="android:windowSoftInputMode">adjustPan</item><!-- NOTE: adjustResize issues onApplyWindowInsets for keyboard, otherwise there are no event -->
 		<item name="android:windowNoTitle">true</item> 
 		<item name="windowNoTitle">true</item>
 		<item name="android:windowActionBar">false</item>
@@ -43,27 +75,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="windowActionBarOverlay">false</item>
 		<item name="android:textColorAlertDialogListItem">?android:textColorPrimary</item>
 		<item name="android:textColorPrimaryDisableOnly">?android:textColorPrimary</item><!-- Needed by popups, e.g. spinner drop down item -->
-		
-		<!-- Poweramp also allows layout under statusbar if statusbar color is not solid, and under android navigation bar, if navigationBarColor is not solid
+		<item name="android:forceDarkAllowed">false</item><!-- We already properly implement dark theme, so this is not needed -->
+ 		<!-- NOTE: this may be required to support going under cutout holes. Now this is applied for hide status bar user option -->
+		<!--<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>-->
+
+		<!-- Poweramp also allows layout under statusbar if statusBarColor is not solid, and under android navigation bar if navigationBarColor is not solid
 			 Following logic is applied:
-			 - if FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS exists (==android:windowDrawsSystemBarBackgrounds=true)
+			 - if FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS exists (==<item name="android:windowDrawsSystemBarBackgrounds">true</item>)
 			   - if android:navigationBarColor has alpha, go under navigation
 			   - if android:statusBarColor has alpha, go under status bar
+			 
+			 NOTE: some devices may always ignore navigation bar or status bar colors (LG)
+			 
+			 Also see DialogForceLightSystemUIStyle/DialogForceDarkSystemUIStyle for inverted navigation/status bar colors (applied for dialogs when system ui should be inverted)  
 		 -->
-		 
-		<!-- NOTE: some devices may always ignore navigation bar or status bar colors (LG) -->
-		
 		<item name="android:statusBarColor">#0000</item><!-- Still may be used by Android. Either this, or statusBarBg should have some color, but not both -->
 		<item name="statusBarBg">#5000</item><!-- Used by TopFitsStatusBarView -->
 		
 		<item name="navigationBarBg">#0000</item><!-- Used by TopFitsNavigationBarView. We don't actually draw android navigation bar by TopFitsNavigationBarView in this theme, but some color is needed -->
-
-		<!-- The code below make status bar light -->
+		
+		<!-- The code below make the status bar light -->
 		<!-- <item name="android:statusBarColor">#4fff</item>
 		<item name="statusBarBg">#0000</item>
 		<item name="android:windowLightStatusBar">true</item> -->
 
-		<!-- The code below makes navigation bar light -->
+		<!-- The code below makes the navigation bar light -->
 		<!-- <item name="android:navigationBarColor">@android:color/white</item>
 		<item name="android:windowLightNavigationBar">true</item>
 		<item name="windowLightNavigationBar">true</item> 
@@ -81,9 +117,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		
 		<item name="android:textColorPrimary">#000</item><!-- Used e.g. for Text -->
 		<item name="android:textColorSecondary">#444</item><!-- Used e.g. for SubheadText -->
-		<!-- NOTE: by default, text has ?textAppearanceSmall => TextAppearance.Material.Small => ?attr/textColorTertiary, thus, this is color for non-styled TextViews -->
+		<!-- NOTE: by default, TextView has ?textAppearanceSmall => TextAppearance.Material.Small => ?attr/textColorTertiary, thus, this is the color for non-styled TextViews -->
 		<item name="android:textColorTertiary">#656565</item>
 		<item name="android:textColorPrimaryInverse">#fff</item>
+
 		<!-- <item name="android:textColorSecondaryInverse">#ccc</item> --><!-- Not used -->
 		<!-- <item name="android:textColorTertiaryInverse">#656565</item> --><!-- Not used -->
 				
@@ -94,15 +131,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="colorBgInverse">#000</item>
 		<item name="colorBgInverseChecked">#000</item>
 		<item name="colorStroke">#555</item>
-		<item name="colorLessContrast">#333</item><!-- Used for e.g. for main screen tinted icons, nav icons, some text -->
+		<item name="colorBgHelp">#f0f0f0</item>
+		<item name="colorStrokeHelp">#333</item>
+		<item name="colorLessContrast">#333</item><!-- Used for e.g. for main screen tinted icons, some text -->
 		<item name="colorShade">#88000000</item>
 		<item name="colorBgLight">#f0f0f0</item><!-- Used ATM for Search Frame bg -->
+		<item name="colorItemPlayingMark">#eee</item>
 		
 		<item name="colorIconPrimary">@null</item><!-- By default, our icon drawables are black, thus, no extra tinting -->
 		<item name="colorIconPrimaryForced">#000</item>
 		<item name="colorIconInverse">#fff</item>
 		<item name="colorIconInverseForced">#fff</item>
 		<item name="colorIconDisabled">#7777</item><!-- NOTE: used only in few places, e.g. vis/repeat/shuffle icons (alt) -->
+		
+		<item name="colorTextDisabled">#d6d6d6</item><!-- Used for text disabled color in very few places where text is rendered by the view, e.g. in LinearKnob -->
 		
 		<!-- Basically, the main background color for Poweramp main activity, as Milk visualization/AA blur is always on background, except lock screen mode.
 		     Though, in lock screen mode, this color is also used as background color by lock screen code -->
@@ -138,11 +180,48 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="colorPreampBg">#ccc</item>
 		
 		<item name="colorTrackMeta">#999</item>
+		<item name="colorTrackNum">#999</item>
 		<item name="colorSeparator">#FF888888</item>
+		<item name="colorSeparatorLight">#EEE</item>
 				
 		<item name="colorNavbarIconsLessContrast">#fff</item><!-- NOTE: not used in default theme -->
 		<item name="colorNavbarIcons">#FF585858</item>
 		<item name="colorBgNavbar">#fff</item>
+		<item name="colorBgTransparentNavbar">#7fff</item><!-- REVISIT: doesn't look so great for Android 10 navbar-line, but still is OK for usual navbar there --> 
+		
+		<item name="colorSeekbarBg">#0000</item>
+		<item name="colorSeekbarProgress">#0000</item>
+		<item name="colorSeekbarThumb">#333</item>
+		
+		<item name="colorIconCC">#e8e8e8</item>
+		
+		<item name="arcStartColor">@null</item>
+		<item name="arcEndColor">@null</item>
+		<item name="arcGlowStartColor">@null</item>
+		<item name="arcGlowEndColor">@null</item>
+		
+		<item name="arcWidth">@dimen/RoundKnob_arcWidth</item>
+		<item name="arcOffset">@dimen/RoundKnob_arcOffset</item>
+		<item name="arcGlowWidth">0dp</item><!-- Increaded for Dark. Doesn't look good for Light -->
+		
+		<item name="holeStartColor">@null</item>
+		<item name="holeEndColor">@null</item>
+		<item name="holeGlowStartColor">@null</item>
+		<item name="holeGlowEndColor">@null</item>
+		
+		<item name="holeColorWidth">2.5dp</item>
+		<item name="holeGlowWidth">0dp</item><!-- Increased for Dark. Doesn't look good for Light -->
+		<item name="holeColorRadius">1.25dp</item>
+						
+		<item name="prev_cat_round">@drawable/prev_cat_round</item>
+		<item name="rw_round">@drawable/rw_round</item>
+		<item name="ff_round">@drawable/ff_round</item>
+		<item name="next_cat_round">@drawable/next_cat_round</item>
+		<item name="pause_round">@drawable/pause_round</item>
+		<item name="play_round">@drawable/play_round_100dp</item>
+		<item name="pause_small_narrow">@drawable/pause_small_narrow</item>
+		<item name="back_10s_round">@drawable/back_10s_round</item>
+		<item name="forward_10s_round">@drawable/forward_10s_round</item>
 		
 		<item name="defaultHiResAA">@drawable/gl_poweramp_logo_hd</item>
 		<item name="defaultLowResAA">@drawable/gl_poweramp_logo</item>
@@ -158,6 +237,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="pre_bt">@drawable/pre_bt</item>
 		<item name="pre_song">@drawable/pre_song</item>
 		<item name="pre_usb">@drawable/pre_usb</item>
+		<item name="pre_chromecast">@drawable/pre_chromecast</item>
 		<item name="pre_other">@drawable/pre_other</item>
 		
 		<item name="folder_cat_icon">@drawable/folder_16dp</item>
@@ -165,7 +245,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<!-- List type icons. Shown in Library and as Playing Now icon -->
 		<item name="all_songs">@drawable/all_songs_colored</item>
 		<item name="folders">@drawable/folders_colored</item>
-		<item name="folders_hier">@drawable/folders_colored</item><!-- TODO -->
+		<item name="folders_hier">@drawable/folders_hier_colored</item><!-- TODO -->
 		<item name="albums">@drawable/albums_colored</item>
 		<item name="albums_by_artist">@drawable/albums_colored</item><!-- REVISIT -->
 		<item name="artists">@drawable/artists_colored</item>
@@ -173,15 +253,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="composers">@drawable/composers_colored</item>
 		<item name="playlists">@drawable/playlists_colored</item>
 		<item name="genres">@drawable/genres_colored</item>
+		<item name="years">@drawable/years_colored</item>
 		<item name="queue">@drawable/queue_colored</item>
 		<item name="top_rated">@drawable/top_rated_colored</item>
 		<item name="low_rated">@drawable/low_rated_colored</item>
 		<item name="most_played">@drawable/most_played_colored</item>
 		<item name="recently_played">@drawable/recently_played_colored</item>
 		<item name="recently_added">@drawable/recently_added_colored</item>
+		<item name="long_files">@drawable/long_files_colored</item>
+		<item name="streams">@drawable/streams_colored</item>
+		<item name="bookmarks">@drawable/bookmarks_colored</item>
 		
 		<item name="micro_all_songs">@drawable/song_12dp</item>
-		<!-- TODO: 12p sizes -->
 		<item name="micro_folders">@drawable/folders_12dp</item>
 		<item name="micro_folders_hier">@drawable/folders_hier_12dp</item>
 		<item name="micro_albums">@drawable/albums_12dp</item>
@@ -191,59 +274,101 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="micro_composers">@drawable/composers_12dp</item>
 		<item name="micro_playlists">@drawable/playlists_12dp</item>
 		<item name="micro_genres">@drawable/genres_12dp</item>
+		<item name="micro_years">@drawable/years_12dp</item>
 		<item name="micro_queue">@drawable/queue_12dp</item>
 		<item name="micro_top_rated">@drawable/like_12dp</item>
 		<item name="micro_low_rated">@drawable/unlike_12dp</item>
 		<item name="micro_most_played">@drawable/most_played_12dp</item>
 		<item name="micro_recently_played">@drawable/recently_played_12dp</item>
 		<item name="micro_recently_added">@drawable/recently_added_12dp</item>
+		<item name="micro_long_files">@drawable/long_files_12dp</item>
+		<item name="micro_raw_file">@drawable/song_12dp</item><!-- REVISIT -->
+		<item name="micro_streams">@drawable/streams_12dp</item>
+		<item name="micro_bookmarks">@drawable/bookmarks_12dp</item>
 		
 		<item name="meta_next_12dp">@drawable/next_12dp</item>
 		<item name="meta_songs_12dp">@drawable/song_12dp</item><!-- Small song icon used for item_track meta -->
-		<item name="settings_v">@drawable/settings_v_colored</item><!-- NOTE: used in some dialogs -->
+		<item name="keep_list_pos_12dp">@drawable/keep_list_pos_12dp</item>
+		<item name="keep_track_pos_12dp">@drawable/keep_track_pos_12dp</item>
+		<item name="keep_list_track_pos_12dp">@drawable/keep_list_track_pos_12dp</item>
 		
-		<item name="toast_excl">@drawable/exclamation_48dp</item><!-- Toast exlcamation sign -->
-		<item name="toast_queue">@drawable/toast_queue</item>
+		
+		<item name="settings_v">@drawable/settings_v_colored</item><!-- NOTE: used in some dialogs -->
+		<item name="check_48dp">@drawable/check_48dp</item>
+		<item name="fail_48dp">@drawable/fail_48dp</item>
+		
+		<item name="toast_excl">@drawable/toast_exclamation_tinted</item><!-- Toast exlcamation sign -->
+		<item name="toast_queue">@drawable/toast_queue_tinted</item>
+		<item name="toast_info">@drawable/toast_info_tinted</item>
+		
 		<item name="button_selector">?android:attr/selectableItemBackgroundBorderless</item><!-- Background used for buttons -->
 		<item name="ar_down_selector">@drawable/ar_down</item><!-- Arrow down image used for combobox inputs, e.g. like in Edit Tags dialog/Genre -->
 		
 		<!-- Menu items -->
 		<item name="rescan">@drawable/refresh</item> 
-		<item name="list_options">@drawable/list_options</item>
+		<item name="list_options">@drawable/list_options_stroke</item>
 		<item name="add_to_pl">@drawable/add_to_pl_stroke</item>
 		<item name="info">@drawable/info</item>
 		<item name="send">@drawable/send_stroke</item>
 		<item name="enqueue">@drawable/enqueue_stroke</item>
+		<item name="add_next">@drawable/add_next_stroke</item>
 		<item name="lyrics">@drawable/lyrics</item>
 		<item name="album_art">@drawable/image</item>
 		<item name="delete">@drawable/delete_stroke_24dp</item>
 		<item name="resort">@drawable/sort_24dp</item>
 		<item name="delete_dups">@drawable/del_dups</item>
 		<item name="clear_q">@drawable/clear_q</item>
+		<item name="clear">@drawable/clear_24dp</item>
+		<item name="redo">@drawable/redo_24dp</item>
+		<item name="export">@drawable/export_24dp</item>
+		<item name="bookmark">@drawable/bookmark_stroke</item>
 		
 		<item name="clear_q_24dp">@drawable/clear_q_stroke_24dp</item>
 		<item name="artists_24dp">@drawable/artists_stroke_24dp</item>
+		<item name="genres_24dp">@drawable/genres_stroke_24dp</item>
 		<item name="albums_24dp">@drawable/albums_stroke_24dp</item>
 		<item name="folders_24dp">@drawable/folders_stroke_24dp</item>
+		<item name="folder_24dp">@drawable/folder_stroke_24dp</item>
 		<item name="rename_24dp">@drawable/rename_24dp</item>
 		<item name="delete_24dp">@drawable/delete_stroke_24dp</item>
 		<item name="assign_eq_24dp">@drawable/assign_eq_24dp</item>
 		<item name="playlist_24dp">@drawable/playlist_24dp</item>
 		<item name="play_24dp">@drawable/play_24dp</item>
+		<item name="search_24dp">@drawable/search</item>
+		
+		<item name="changelog_24dp">@drawable/zap</item>
+		<item name="settings_24dp">@drawable/settings_24dp</item>
+		<item name="settings_alt_24dp">@drawable/settings_stroke_24dp</item>
+		<item name="support_24dp">@drawable/support</item>
 		
 		<item name="sort_type_24dp">@drawable/sort_type_24dp</item>
 		<item name="sort_24dp">@drawable/sort_24dp</item>
 		<item name="sort_author_24dp">@drawable/sort_author_24dp</item>
 		<item name="sort_source_24dp">@drawable/sort_source_24dp</item>
 		<item name="sort_rating_24dp">@drawable/sort_rating_24dp</item>
-		
+		<item name="sort_added_24dp">@drawable/sort_added_24dp</item>
+		<item name="sort_modified_24dp">@drawable/sort_modified_24dp</item>
+		<item name="sort_num_tracks_24dp">@drawable/sort_num_tracks_24dp</item>
 		<item name="shuffle_24dp">@drawable/shuffle_24dp</item>
+		<item name="stream_24dp">@drawable/stream_24dp</item>
 		
 		<item name="star_8dp">@drawable/star_8dp</item>
 		<item name="star_2_8dp">@drawable/star_2_8dp</item>
 		<item name="star_3_8dp">@drawable/star_3_8dp</item>
 		<item name="star_4_8dp">@drawable/star_4_8dp</item>
 		<item name="star_5_8dp">@drawable/star_5_8dp</item>
+		
+		<!-- Android mediarouter icons -->
+		<item name="media_route">@drawable/mr_button_light</item>
+		<item name="mediaRouteCloseDrawable">@drawable/mr_dialog_close_light</item>
+		<item name="mediaRoutePlayDrawable">@drawable/mr_media_play_light</item>
+		<item name="mediaRoutePauseDrawable">@drawable/mr_media_pause_light</item>
+		<item name="mediaRouteStopDrawable">@drawable/mr_media_stop_light</item>
+		<item name="mediaRouteAudioTrackDrawable">@drawable/mr_vol_type_audiotrack_light</item>
+		<item name="mediaRouteDefaultIconDrawable">@drawable/ic_mr_button_grey</item>
+		<item name="mediaRouteTvIconDrawable">@drawable/ic_vol_type_tv_light</item>
+		<item name="mediaRouteSpeakerIconDrawable">@drawable/ic_vol_type_speaker_light</item>
+		<item name="mediaRouteSpeakerGroupIconDrawable">@drawable/ic_vol_type_speaker_group_light</item>
 		
 		<!-- Android autocomplete items -->
 		<item name="android:listPreferredItemHeight">44dp</item>
@@ -252,6 +377,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="HeadText">@style/HeadText</item>
 		<item name="SubheadText">@style/SubheadText</item>
 		<item name="Text">@style/Text</item>
+		<item name="LargerText">@style/LargerText</item>
 		<item name="AccentedText">@style/AccentedText</item>
 		<item name="Hint">@style/Hint</item>
 		
@@ -263,6 +389,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="grid_aa_elevation">4dp</item>
 		<item name="list_aa_elevation">2dp</item>
 		<item name="over_aa_elevation">4dp</item>
+		<item name="item_ontop_elevation">4.5dp</item><!-- This should be always on top of everything in item -->
 		
 		<item name="popup_elevation">8dp</item>
 		<item name="navbar_elevation">1.25dp</item>
@@ -273,6 +400,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		
 		<!-- Corners -->
 		<item name="corners_popup">6dp</item>
+		<item name="corners_medium_minus">6dp</item>
 		<item name="corners_medium">8dp</item>
 		<item name="corners_medium_plus">16dp</item>
 		<item name="corners_navbar">8dp</item>
@@ -303,10 +431,48 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		
 		<item name="corners_miniplayer_aa">4dp</item>
 		
-		<!-- Dimensions -->
-		<item name="bottom_navbar_bounds_size">@dimen/NavbarBounds_height</item>
-		<item name="bottom_navbar_bounds_2lines_size">@dimen/NavbarBounds_height_scene_navbar_2lines</item>
-		
+		<!-- Item label scale -->
+		<item name="ItemTrackTitle_scale">0.85</item>
+		<item name="ItemTrackTitle_scene_small_scale">0.85</item>
+		<item name="ItemTrackTitle_scene_zoomed_scale">1.0</item>
+		<item name="ItemTrackTitle_scene_grid_scale">@dimen/scale_title_scene_grid</item>
+		<item name="ItemTrackTitle_scene_grid_zoomed_scale">.90</item>
+		<item name="ItemTrackTitle_scene_grid_1_alt_zoomed_scale">.95</item>
+		<item name="ItemTrackTitle_scene_header_scale">1</item>
+		<item name="ItemTrackTitle_scene_aa_scale">1</item>
+		<item name="ItemTrackTitle_scene_item_menu_scale">.95</item>
+		<item name="ItemTrackTitle_scene_item_menu_marginBottom">-8.75dp</item>
+				
+		<item name="Alt_ItemTrackTitle_scene_aa_scale">@dimen/Alt_ItemTrackTitle_scene_aa_scale</item>
+		<item name="ItemTrackTitle_marginBottom">-6dp</item>
+		<item name="ItemTrackTitle_paddingLR">8dp</item>
+		<item name="ItemTrackTitle_paddingTB">6dp</item>
+				
+		<item name="ItemTrackLine2_scale">.86</item>
+		<item name="ItemTrackLine2_scene_small_scale">.86</item>
+		<item name="ItemTrackLine2_scene_zoomed_scale">1</item>		
+		<item name="ItemTrackLine2_scene_grid_scale">@dimen/scale_line2_scene_grid</item>
+		<item name="ItemTrackLine2_scene_grid_zoomed_scale">.86</item>
+		<item name="ItemTrackLine2_scene_header_scale">1</item>
+		<item name="ItemTrackLine2_scene_aa_scale">1</item>
+		<item name="ItemTrackLine2_scene_item_menu_scale">.90</item>
+		<item name="Alt_ItemTrackLine2_scene_aa_scale">@dimen/Alt_ItemTrackTitle_scene_aa_scale</item>
+		<item name="ItemTrackLine2_paddingLR">9dp</item>
+		<item name="ItemTrackLine2_paddingTB">7dp</item>
+				
+		<item name="ItemTrackMeta_scale">.9</item>
+		<item name="ItemTrackMeta_scene_small_scale">.9</item>
+		<item name="ItemTrackMeta_scene_zoomed_scale">1</item>
+		<item name="ItemTrackMeta_scene_grid_scale">0.85</item>
+		<item name="ItemTrackMeta_scene_grid_zoomed_scale">0.85</item>
+		<item name="ItemTrackMeta_scene_header_w_meta_base_scale">1</item>
+		<item name="ItemTrackMeta_scene_header_scale">1</item>
+		<item name="ItemTrackMeta_scene_item_menu_scale">1</item>
+		<item name="ItemTrackMeta_marginTop">-8.5dp</item>
+		<item name="ItemTrackMeta_paddingLR">10dp</item>
+		<item name="ItemTrackMeta_drawablePadding">-10dp</item>
+		<item name="ItemTrackMeta_drawablePaddingStart">8.5dp</item>
+		<item name="ItemTrackMeta_scene_item_menu_marginLeft">-2dp</item>
 		
 		<item name="VolumePanelPopup">@style/VolumePanelPopup</item>
 		<item name="VolumePanelFrame">@style/VolumePanelFrame</item>
@@ -324,6 +490,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="dialog_EditTagActivity">@style/dialog_EditTagActivity</item>
 		<item name="dialog_ExpiredActivity">@style/dialog_ExpiredActivity</item>
 		<item name="dialog_ChangelogActivity">@style/dialog_ChangelogActivity</item>
+		<item name="dialog_AudioInfoActivity">@style/dialog_AudioInfoActivity</item>
 		<item name="dialog_EqPresetAssignActivity">@style/dialog_EqPresetAssignActivity</item>
 		<item name="dialog_AddEqPresetActivity">@style/dialog_AddEqPresetActivity</item>
 		<item name="dialog_AddReverbPresetActivity">@style/dialog_AddReverbPresetActivity</item>
@@ -331,42 +498,153 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="dialog_EditNameActivity">@style/dialog_EditNameActivity</item>
 		<item name="dialog_MusicFoldersActivity">@style/dialog_MusicFoldersActivity</item>
 		<item name="dialog_AutoFindDialogActivity">@style/dialog_AutoFindDialogActivity</item>
-		<item name="dialog_TextAlertDialogActivity">@style/dialog_TextAlertDialogActivity</item>
 		<item name="dialog_APMUnlockDialogActivity">@style/dialog_APMUnlockDialogActivity</item>
 		<item name="dialog_AudioBufferActivity">@style/dialog_AudioBufferActivity</item>
 		<item name="dialog_ListOptsActivity">@style/dialog_ListOptsActivity</item>
 		<item name="dialog_PlaylistSortActivity">@style/dialog_PlaylistSortActivity</item>
 		<item name="dialog_PlaylistSelectActivity">@style/dialog_PlaylistSelectActivity</item>
+		<item name="dialog_PlaylistShortcutActivity">@style/dialog_PlaylistShortcutActivity</item>
+		<item name="dialog_MediaRouteChooserActivity">@style/dialog_MediaRouteChooserActivity</item>		
+		<item name="dialog_MediaRouteControllerActivity">@style/dialog_MediaRouteControllerActivity</item>
+		<item name="dialog_EqPresetsActivity">@style/dialog_EqPresetsActivity</item>
 		<item name="dialog_LyricsActivity">@style/dialog_LyricsActivity</item>		
-				
 		<item name="dialog_MobirooDRMErrorActivity">@style/dialog_MobirooDRMErrorActivity</item>
+		<item name="dialog_PlaylistsExportActivity">@style/dialog_PlaylistsExportActivity</item>		
+		
+		<!-- Skin overlaps -->
+		<item name="overlap_more_buttons">@style/ActivityTheme_Whitepro_MoreButtons</item>
+		<item name="overlap_plain_seekbar">@style/ActivityTheme_Whitepro_PlainSeekbar</item>
+		<item name="overlap_transparent_navbar">@style/ActivityTheme_Whitepro_TransparentNavbar</item>
+		<item name="overlap_navbar_offset">@style/ActivityTheme_Whitepro_OffsetNavbar</item>
+		<!-- NOTE: this is further overridden by styles-options.xml OptionRatingStarsMenu (works with <skin> forceGlobalOptions=true) -->
+		<item name="overlap_alt_layout">@style/ActivityTheme_Whitepro_AltLayout</item>
+		
+		<!-- Navbar margins to allow easy overriding for overlap_navbar_offset option -->
+		<item name="navbar_marginLR">8dp</item>
+		<item name="navbar_marginB">@dimen/Navbar_normal_marginB</item><!-- NOTE: there is also increased margin, but we need exactly Navbar_normal_marginB value for TopContainer reduceBottomInset -->
+		<!-- NOTE: modified by overlap_navbar_offset -->
+		<item name="bottom_navbar_bounds_size">@dimen/NavbarBounds_height</item>
+		<item name="bottom_navbar_bounds_2lines_size">@dimen/NavbarBounds_height_scene_navbar_2lines</item>
+		
+		<!-- Used for ActivityTheme_Whitepro_PlainSeekbar, overridden by ActivityTheme_Whitepro_AltLayout  -->
+		<item name="PlainSeekbar_buttons_offset">@dimen/PlainSeekbar_buttons_offset</item>
+		<item name="PlainSeekbar_marginBottom">@dimen/PlainSeekbar_marginBottom</item>
+		<item name="PlainSeekbar_common_marginBottom">@dimen/PlainSeekbar_common_marginBottom</item>
+		<item name="PlainSeekbar_metaInfo_marginBottom">@dimen/PlainSeekbar_metaInfo_marginBottom</item>
+		
+		<!-- By default, we're showing Chromecast button in main UI, though, this is overridden by OptionCCDisabled/OptionCCInMenu -->
+		<item name="CcButton_MainUI">@style/CcButton_MainUI</item>
+		<item name="CcButton_MainUI_scenes_playing">@style/CcButton_MainUI_scenes_playing</item>
+		<item name="CcButton_MainUI_scenes_vis_w_ui">@style/CcButton_MainUI_scenes_vis_w_ui</item>
+		<item name="CcButton_MainUI_scenes_invisible">@style/CcButton_MainUI_scenes_invisible</item>
+		<item name="CcButton_NavbarExtensionMenuLine">@style/CcButton_NavbarExtensionMenuLine_disabled</item>
+		
+		<item name="ItemTrackMenu_scene_aa_visibility">visible</item>
+		<item name="AAImage_scaleType">centerCrop</item><!-- By default, (modified) centerCrop is used. Can be overriden by OptionAAKeepAspect/OptionAACrop -->
+		
+		<!-- Not themeable functional attributes -->
+		
+		<item name="milk_advance_modes">@array/milk_advance_modes</item>
+		<item name="milk_advance_icons">@array/milk_advance_icons_24dp</item>
+		<item name="milk_advance_enum">@null</item>
+		<item name="settings_target_audio">audio</item>
+		<item name="settings_target_equ">audio_equ</item>
 	</style>
-	
+
+	<!-- NOTE: need additional level of indirection due to e.g. values-v29 overridding which should be used by skins which derive from Base_ActivityTheme_Default -->	
+	<style name="Base_ActivityTheme_Default" parent="Base_ActivityTheme_Core">
+	</style>
 	
 	<style name="ActivityTheme_White" parent="Base_ActivityTheme_Default">
 	</style>
 	
-	
-	<!-- An overlay style -->
+	<!-- An overlap style -->
+	<!-- Inverses navbar -->
 	<style name="ActivityTheme_Whitepro_ForceLightNavbar">
 		<!-- The code below makes navigation bar light -->
 		<item name="android:navigationBarColor">@android:color/white</item>
 		<item name="android:windowLightNavigationBar">true</item>
 		<item name="windowLightNavigationBar">true</item> 
-		<item name="android:navigationBarDividerColor">#1f000000</item>
-	</style>	
+		<item name="android:navigationBarDividerColor">#08000000</item>
+		<item name="overlap_transparent_navbar">@style/ActivityTheme_Whitepro_TransparentLightNavbar</item>
+	</style>
 	
-	<!-- An overlay style -->
+	<!-- An overlap style -->
+	<!-- Overridden for 26+ -->
+	<style name="ActivityTheme_Whitepro_TransparentNavbar">
+		<item name="android:windowTranslucentNavigation">true</item>
+		
+		<item name="Navbar">@style/Navbar_transparentNavbar</item>
+		<item name="Navbar_scene_navbar_1line_sheet">@style/Navbar_scene_navbar_1line_sheet_transparentNavbar</item>
+		<item name="Navbar_scene_navbar_2lines">@style/Navbar_scene_navbar_2lines_transparentNavbar</item>
+		<item name="SelectionMenuSubcontainer_scenes_hidden">@style/SelectionMenuSubcontainer_scenes_hidden_transparentNavbar</item>
+	</style>
+	<style name="ActivityTheme_Whitepro_TransparentLightNavbar" parent="ActivityTheme_Whitepro_TransparentNavbar">
+	</style>
+	
+	<!-- No need to override all scenes, as we change just background, which is not changed by scenes for Poweramp Navbar.
+	     We also derive from our skin Navbar style to reuse previous modification (e.g. margins).
+	     See also/sync with values-sw2dp-land/styles-navbar.xml where this is repeated for land -->
+	<style name="Navbar_transparentNavbar" parent="Navbar">
+		<item name="android:background">@drawable/navbar_transparent_bg</item><!-- NOTE: @null won't work here, as this will make navbar a non-drawing view, thus, no scene background change will happen -->
+		<item name="applyViewParams">true</item>
+		<item name="android:elevation">0px</item>
+	</style>
+	<style name="Navbar_scene_navbar_1line_sheet_transparentNavbar" parent="Navbar_scene_navbar_1line_sheet">
+		<item name="android:background">@drawable/navbar_bg</item><!-- Apply white background for scenes, so navbar has visible background in lists and when expanded -->
+		<item name="applyViewParams">true</item><!-- Enables background changes for scene -->
+		<item name="android:elevation">?navbar_elevation</item>
+	</style>
+	<style name="Navbar_scene_navbar_2lines_transparentNavbar" parent="Navbar_scene_navbar_2lines">
+		<item name="android:background">@drawable/navbar_bg</item>
+		<item name="applyViewParams">true</item>
+		<item name="android:elevation">?navbar_elevation</item>
+	</style>
+	<style name="SelectionMenuSubcontainer_scenes_hidden_transparentNavbar" parent="SelectionMenuSubcontainer_scenes_hidden">
+		<item name="jumpVisibility">false</item><!-- Avoid jumping visibility, let it properly fade -->
+	</style>
+		
+	<!-- An overlap style -->
+	<style name="ActivityTheme_Whitepro_OffsetNavbar">
+		<item name="navbar_marginLR">12dp</item>
+		<item name="navbar_marginB">12dp</item>
+		<item name="bottom_navbar_bounds_size">@dimen/NavbarBounds_height_offset</item>
+		<item name="bottom_navbar_bounds_2lines_size">@dimen/NavbarBounds_height_scene_navbar_2lines_offset</item>
+	</style>
+	
+	<!-- An overlap style -->
 	<style name="ActivityTheme_Whitepro_StaticSeekbar">
 		<item name="waveseek_bar">@drawable/narrow_bar</item>
 		<item name="waveseek_elapsedbar">@drawable/narrow_elapsedbar</item>
 		<item name="TopWaveseek">@style/TopWaveseekStatic</item>
 	</style>
+	
+	<!-- An overlap style -->
+	<style name="ActivityTheme_Whitepro_LightButtons">
+		<item name="colorInverse">#000</item>
+		<item name="colorBgInverse">#fff</item>
+		<item name="colorBgInverseChecked">#ccc</item><!-- Used for checkable buttons. As we don't inverse text to white, use some grey for checked state -->
+		<item name="android:textColorPrimaryInverse">#000</item>
+		<item name="colorIconInverse">@null</item>
+		<item name="colorIconInverseForced">#000</item>
 		
-	<!-- An overlay style -->
+		<item name="prev_cat_round">@drawable/prev_cat_round_inv</item>
+		<item name="rw_round">@drawable/rw_round_inv</item>
+		<item name="ff_round">@drawable/ff_round_inv</item>
+		<item name="next_cat_round">@drawable/next_cat_round_inv</item>
+		<item name="pause_round">@drawable/pause_round_inv</item>
+		<item name="play_round">@drawable/play_round_inv_100dp</item>
+		<!-- NOTE: small pause is just tinted -->
+		<item name="back_10s_round">@drawable/back_10s_round_inv</item>
+		<item name="forward_10s_round">@drawable/forward_10s_round_inv</item>
+	</style>
+	
+	<!-- An overlap style -->
 	<style name="ActivityTheme_Whitepro_MoreButtons">
 		<!-- Additional layout which is otherwise missing -->
 		<item name="TopWaveseekLayout_extraLayout">@layout/merge_topwaveseeklayout_extralayout</item>
+		
+		<!--<item name="TopPlay">@style/TopPlayMoreButtons</item>--><!-- NOTE: no need to override -->
 		
 		<item name="TopPause">@style/TopPauseMoreButtons</item>
 		<item name="TopPause_scene_playing">@style/TopPauseMoreButtons_scene_playing</item>
@@ -376,6 +654,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		
 		<item name="TopTrackDuration">@style/TopTrackDurationMoreButtons</item>
 		<item name="TopTrackDuration_scene_playing">@style/TopTrackDurationMoreButtons_scene_playing</item>
+	</style>
+	
+	
+	<style name="TopWaveseek_disabled" parent="TopWaveseek">
+		<item name="android:enabled">false</item>
+		<item name="android:visibility">gone</item>
+		<item name="applyScene">false</item>
 	</style>
 		
 	
@@ -392,53 +677,21 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	</style>
 	
 	
-	<!-- This style can be used to additionally override dialog forced styles. Dialog forced styles are styles which overrides main app theme --> 
-	<style name="Default_BaseDialogForcedStyle" parent="BaseDialogForcedStyle">
-	</style>
-	
-	
 	<!-- Styles for Default theme -->
-	
-	<!-- Text -->
-	<style name="HeadText">
-		<item name="android:textSize">@dimen/HeadText_size</item>
-		<item name="android:textColor">?android:textColorSecondary</item>
-	</style>
-
-	<style name="SubheadText">
-		<item name="android:textSize">@dimen/SubheadText_size</item>
-		<item name="android:textStyle">bold</item>
-		<item name="android:textColor">?android:textColorSecondary</item>
-	</style>
-	
-	<style name="Text">
-		<item name="android:textSize">@dimen/Text_size</item>
-		<item name="android:textColor">?android:textColorPrimary</item>
-	</style>
-	
-	<style name="AccentedText" parent="Text">
-		<item name="android:textColor">?colorAccent</item>
-	</style>
-	
-	<style name="Hint">
-		<item name="android:textSize">@dimen/Hint_size</item>
-		<item name="android:textColor">?android:textColorTertiary</item>
-	</style>
-	
 	
 	<style name="VolumePanelPopup">
 		<!-- NOTE: avoid non window attrs here, as they are applied to any views inside window (propagate as base styles to any view inside) -->
 		<item name="android:colorBackground">#0000</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
+		<item name="android:colorBackgroundCacheHint">@null</item>
 
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowBackground">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <item name="android:windowSoftInputMode">adjustResize</item>
-        
+		<item name="android:windowFrame">@null</item>
+		<item name="android:windowBackground">@null</item>
+		<item name="android:windowIsFloating">true</item>
+		<item name="android:backgroundDimEnabled">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+		<item name="android:windowSoftInputMode">adjustResize</item>
+
 		<item name="android:windowElevation">0dp</item>
 		<item name="android:windowCloseOnTouchOutside">true</item>
 	</style>
@@ -453,10 +706,48 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<item name="android:background">@drawable/less_alpha_rounded_medium</item>
 	</style>
 	
-	<style name="VolumePanelKnobLayout" parent="EqVolumeKnobLayout">
-		<item name="android:layout_marginTop">16dp</item>
+	<style name="VolumePanelKnobLayout">
+		<item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">match_parent</item>
+		<item name="layout_maxHeight">@dimen/EqRoundKnobLayout_maxSize</item>
+		<item name="android:layout_gravity">top</item>
 		<item name="android:layout_marginBottom">16dp</item>
-		<item name="android:layout_width">140dp</item>
-		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_marginTop">16dp</item>
+				
+		<item name="android:clipChildren">false</item>
+		<item name="android:clipToPadding">false</item>
+		
+		<item name="labelStyle">@style/VolumePanelRoundKnobLabel</item>
+		<item name="valueLabelStyle">@style/VolumePanelRoundKnobValue</item>
+		<item name="roundKnobStyle">@style/VolumePanelRoundKnob</item>
+		<item name="valueLabelPressedAnimStyle">@style/EqLabelPressedAnim</item>
 	</style>
+	
+	<style name="VolumePanelRoundKnob" parent="EqResizableRoundKnob">
+		<item name="layout_attachBottom">@id/_value_label</item>
+	</style>		
+	
+	<style name="VolumePanelRoundKnobLabel" parent="EqResizableRoundKnobLabel">
+	</style>
+	
+	<!-- NOTE: while I can use styles like EqRoundKnobValueLabel directly, I can't use their textAppearance reference, as it depends on top-only theme (TopPoweruiStyles) -->
+	<style name="VolumePanelRoundKnobValue" parent="EqResizableRoundKnobValue">
+		<!-- Make volume panel text color more pronounced as panel itself is semitransparent -->
+		<item name="android:textAppearance">?EqKnobLabel_Text</item>
+		<item name="android:layout_marginTop">0dp</item>
+	</style>
+	
+	<style name="Queue_RatingStars_8dp">
+		<item name="star_8dp">@drawable/queue_star_8dp</item>
+		<item name="star_2_8dp">@drawable/queue_star_2_8dp</item>
+		<item name="star_3_8dp">@drawable/queue_star_3_8dp</item>
+		<item name="star_4_8dp">@drawable/queue_star_4_8dp</item>
+		<item name="star_5_8dp">@drawable/queue_star_5_8dp</item>
+	</style>
+	<style name="Queue_RatingThumbs_8dp">
+		<item name="micro_low_rated">@drawable/queue_micro_low_rated</item>
+		<item name="micro_top_rated">@drawable/queue_micro_top_rated</item>
+	</style>
+		
 </resources>
+

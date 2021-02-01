@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (C) 2010-2018 Maksim Petrov
+Copyright (C) 2010-2020 Maksim Petrov
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted for themes, skins, widgets, plugins, applications and other software
-which communicate with Poweramp music player application on Android platform.
+which communicate with Poweramp music player or Poweramp Equalizer applications on Android platform.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -36,7 +36,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<integer name="ITEM_BG_LEVEL_FEEDBACK">8</integer>
 	
 	<item type="id" name="_debug"/>
-	
+	<item type="id" name="_label"/>
+		
+	<!-- NOTE: @_id/_tag_scene_zero is a id representation of default scene (which has internal id==0). Some attributes also supports "defaultScene"
+	     value, which is specifically specified via some kind of enum for the given attribute -->
 	<item type="id" name="_tag_scene_zero"/>
 	<item type="id" name="_tag_stateAnims"/>
 	<item type="id" name="_tag_activeSceneAndState"/>
@@ -45,9 +48,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	
 	<item type="id" name="behavior_dialog"/><!-- Top level dialog behavior -->
 	<item type="id" name="behavior_back_button"/><!-- Top level back button behavior -->
+	<item type="id" name="behavior_menu" />
+	<item type="id" name="behavior_player_connection"/>
+	<item type="id" name="behavior_scrolling"/>
 		
 	<!-- REVISIT: move to better place - player related ids needed for styles - otherwise appt can crash -->
-	
+	<item type="id" name="anim_ratingbar_pressed" />
 	
 	<item type="id" name="scene_grid"/>
 	<item type="id" name="scene_zoomed"/>
@@ -55,20 +61,35 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="scene_button_menu"/>
 	<item type="id" name="scene_button_menu_closed"/>
 	
+	<item type="id" name="scene_header_1"/><!-- REVISIT -->
+	<item type="id" name="scene_header_back_decor" /><!-- REVISIT: required by PowerListItemToHeaderTransition -->
+
+	<!-- Optional toast -->	
+	<item type="id" name="scene_collapsed_no_icon"/>
+	<item type="id" name="scene_expanded_no_icon"/>
+	<item type="id" name="scene_expanded"/>
+	<item type="id" name="close_button"/>
+			
 	<item type="id" name="_item_type_null_content"/><!-- No content placeholder for NullLayoutEngine --> 
 	<item type="id" name="_item_type_track"/>
-	<item type="id" name="_item_type_separator"/>
-	<item type="id" name="_item_type_basic_header"/><!-- Debug -->
+	<item type="id" name="_item_type_separator"/><!-- NOTE: includes line2 button -->
+	<item type="id" name="_item_type_basic_header"/>
 	<item type="id" name="_item_type_text"/>
-	<!-- <item type="id" name="_item_type_aa_le_decor"/> -->
-	<!-- <item type="id" name="_item_type_miniplayer_track"/> -->
 	<item type="id" name="_item_type_menu"/>
 	<item type="id" name="_item_type_menu_shade"/>
 	
+	<item type="id" name="list"/>
+	<item type="id" name="icon"/>
+	<item type="id" name="title"/>
+	<item type="id" name="line2"/>
+	<item type="id" name="waveseek_cursor"/><!-- REVISIT: required by Waveseek -->
+		
 	<item type="id" name="anim_scrollbar_pressed"/>
-	
+	<item type="id" name="anim_waveseek_pressed"/><!-- REVISIT: required by Waveseek -->
+		
 	<item type="id" name="scene_dialog_scrollable"/>
 	<item type="id" name="scene_selection_menu"/>
+	
 	
 	<!-- Navbar -->	
 	<item type="id" name="navbar"/>
@@ -83,11 +104,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="scene_navbar_2lines_sheet"/>
 	
 	<!-- Popup menu -->
+	<item type="id" name="menu"/>
 	<item type="id" name="menu_placeholder_scene_menu"/>
+	<item type="id" name="popup_menu"/><!-- Modality id: any non-item popups -->
+	<item type="id" name="popup_menu_item"/><!-- Modality id: item popups -->
 	
 	<!-- Dialogs -->
 	<item type="id" name="dialog_shim"/>
 	<item type="id" name="buttons_layout"/>
+	<item type="id" name="dialog_toast_button"/>
 	<item type="id" name="scene_dialog_in"/>
 	<item type="id" name="scene_dialog_in_loading"/>
 	<item type="id" name="scene_dialog_in_progress"/>
@@ -95,16 +120,20 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="scene_dialog_in_toast"/>
 	<item type="id" name="scene_dialog_out_toast"/>
 	<item type="id" name="scene_dialog_out_alt"/>
+	<item type="id" name="scene_dialog_in_w_buttons"/><!-- Scene created in code -->
 	
 	<!-- REVISIT: move bus/msgs/state/cmds ids to separate xml -->
 	<!-- Bus ids -->
 	<item type="id" name="bus_app"/><!-- App level bus, also a state bus -->
 	<item type="id" name="bus_app_cmd"/>
-	<item type="id" name="bus_gui"/><!-- Gui only messages. REVISIT: no bus_gui_cmd for now? -->
+	<item type="id" name="bus_gui"/><!-- Gui only messages. REVISIT: no bus_gui_cmd for now? Public -->
 		
 	<!-- Msgs/states/cmds -->
 	<item type="id" name="state_app_live_activities"/><!-- int. Number of created and not yet destroyed activities -->
 	<item type="id" name="state_app_active_activities"/><!-- int. Number of started activities in state between start and stop -->
+	<item type="id" name="state_app_last_non_temp_activity"/><!-- object. Check for isFinishing() -->
+	<item type="id" name="state_app_last_activity"/><!-- object. Check for isFinishing() -->
+	<item type="id" name="state_app_last_alert"/><!-- object -->
 	
 	<item type="id" name="msg_app_active_activities_change"/><!-- bus_app, arg1 => num of active activities, arg2 => boolean STATE_TRUE if it's activity start, false otherwise -->
 	
@@ -119,7 +148,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="state_list_selection_mode"/><!-- boolean, also a msg -->
 	<item type="id" name="state_list_all_selected"/><!-- boolean, also a msg -->
 	<item type="id" name="state_list_something_selected"/><!-- boolean -->
+	<item type="id" name="state_list_can_delete"/><!-- boolean, like state_list_something_selected but depends on enable_deletion -->
 	<item type="id" name="state_list_one_track_selected"/><!-- boolean -->
+	<item type="id" name="state_list_one_item_selected"/><!-- boolean -->
 	<item type="id" name="state_list_selection_count"/><!-- integer, also a msg -->
 	<item type="id" name="state_list_item_count"/><!-- integer -->
 	<item type="id" name="state_list_selectable_item_count"/><!-- integer -->
@@ -128,12 +159,27 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="state_list_nav_allowed"/><!-- boolean, also a msg. Msg is sent only when state_list_nav_allowed state becomes true -->
 	<item type="id" name="state_list_view_cache"/><!-- obj=>ViewCache -->
 	<item type="id" name="state_list_current_uri"/><!-- (main list) obj=>Uri which describes current loaded list state -->
+	<item type="id" name="state_list_current_pos"/>
 	<!-- <item type="id" name="state_list_aa_cursor"/> --><!-- obj=>BaseCursorQueryArgs -->
 
-	<item type="id" name="state_list_transition_ratio"/><!-- float, also a msg. Msg arg1=float ratio -->
+	<!-- float, also a msg. Msg arg1=float ratio -->
+	<item type="id" name="state_list_transition_ratio"/>
 	<!-- int. -1/NO_ID = no trans, 0 = to main scene, to scene_list, also a msg -->
 	<!-- For msg, -1/NO_ID = end of transition, other values => start of transition -->
-	<item type="id" name="state_list_transition"/><!-- int=type. Also a msg. Msg arg1=type, arg2=ListWidgetBase.FLAG_TRANS_TYPE_* -->
+	<!-- int=type. Also a msg. Msg arg1=type, arg2=ListWidgetBase.FLAG_TRANS_TYPE_* -->
+	<item type="id" name="state_list_transition"/>
+	
+	<item type="id" name="state_gui_nav_animating"/><!-- boolean -->
+	<item type="id" name="state_gui_is_modal_now"/><!-- boolean, integer => @id of scene or view, identifying this model state, or 0 -->
+	
+	
+	<!-- Sets gui to modal mode: used for popups and other modal-like use cases -->
+	<item type="id" name="cmd_gui_set_modal"/><!-- bus_gui, arg1 => optional @id of scene or view, identifying this modal state -->
+	<item type="id" name="cmd_gui_unset_modal"/><!-- bus_gui, arg1 => optional @id of scene or view, identifying this modal state -->
+	<item type="id" name="cmd_gui_reset_modal"/><!-- bus_gui, no anim by default, optional boolean arg = anim (PopupMenuHelper only) -->
+	<item type="id" name="cmd_gui_show_toast"/><!-- bus_gui, arg1 = icon res, arg2 = optional duration ms (>0), obj = CharSequence or array[2] of CharSequence. Public -->
+	<item type="id" name="msg_toast_closed"/><!-- bus_gui, arg1 => id of the toast, arg2 => true if closed by user, obj => same CharSequence/[] that was used to open toast. NOTE: can be sent by different toasts -->
+	<item type="id" name="cmd_gui_close_toast"/><!-- bus_gui. Closes toast/all toasts. If obj is provided, only the text-matching toast CharSequence[2] is closed -->
 	
 	<item type="id" name="cmd_list_select_all"/>
 	<item type="id" name="cmd_list_select_none"/>
@@ -141,12 +187,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="cmd_list_selection_mode"/><!-- arg1=0 disalbe, arg1=1 enable -->
 	<item type="id" name="cmd_list_up_nav"/>
 	<item type="id" name="cmd_list_search_text"/>
-	<item type="id" name="cmd_list_add_to_q"/>
 	<item type="id" name="cmd_list_delete"/>
-	<item type="id" name="cmd_list_info_dialog"/>
 	
-	<item type="id" name="cmd_list_play"/>
-	<item type="id" name="cmd_list_shuffle"/>
+	<item type="id" name="cmd_app_open_settings"/><!-- obj => settings page -->
 	
 	
 	<item type="id" name="cmd_list_prefer_aa_scene"/><!-- arg1 == scene_aa, scene_aa_playing, scene_aa_vis -->
@@ -156,11 +199,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	
 	<item type="id" name="cmd_end_selection_mode"/><!-- this is sent to target bus by selection menu -->
 	
-	<item type="id" name="cmd_selection_menu_open"/><!-- arg1 == menu layout, arg2 == target bus for selection menu cmds -->
+	<item type="id" name="cmd_selection_menu_open"/><!-- arg1 == menu layout, arg2 == target bus for selection menu cmds, obj == optional int[] ids to hide -->
 	<item type="id" name="cmd_selection_menu_close"/><!-- no args => closes recent selection menu. Selective: arg1 == menu layout, arg2 == target bus => closes matching selection menu-->
+	<item type="id" name="cmd_selection_menu_focus"/>
+	
+	<item type="id" name="cmd_popup_menu_focus"/>
 	
 	
-	<item type="id" name="cmd_alert_dialog"/><!-- To alert dialog -->
+	<item type="id" name="cmd_alert_dialog"/><!-- To alert dialog. NOTE: bus_app -->
 	<item type="id" name="msg_alert_dialog"/><!-- From alert dialog -->
 
 	<item type="id" name="msg_activity_on_create"/><!-- bus_gui -->
@@ -173,9 +219,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	<item type="id" name="msg_activity_on_destroy"/><!-- bus_gui -->
 	<item type="id" name="msg_activity_on_save"/><!-- onSaveInstanceState, bus_gui -->
 	
-	
-	
 	<!-- Other bus msgs -->
-	<item type="id" name="msg_version_info_changed"/>
+	<item type="id" name="msg_version_info_changed"/><!-- bus_app -->
+	
+	
 </resources>
 	

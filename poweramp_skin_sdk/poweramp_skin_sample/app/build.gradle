@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.poweramp.sampleskin"
+        applicationId "com.poweramp.v3.sampleskin"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
@@ -22,7 +22,8 @@ android {
 
     }
     aaptOptions {
-        additionalParameters "--shared-lib", "-I", "../../../audioplayer/bin/audioplayer.apk"
+        additionalParameters "--stable-ids", "stable-ids.txt", "--emit-ids", "stable-ids.txt", "--package-id", "0x80",
+                                "-I", "../../../audioplayer/dist/893-uni/Poweramp-build-893-uni.apk"
     }
 
     useLibrary 'android.test.runner'
@@ -34,4 +35,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    def appcompat_version = "1.1.0-rc01"
+
+    // NOTE: we need just resources for loadable font support (or, actually, for building that)
+    implementation "androidx.appcompat:appcompat-resources:$appcompat_version"
 }

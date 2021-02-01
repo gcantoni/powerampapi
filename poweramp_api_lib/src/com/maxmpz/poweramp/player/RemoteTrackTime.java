@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2011-2018 Maksim Petrov
+Copyright (C) 2011-2020 Maksim Petrov
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted for widgets, plugins, applications and other software
@@ -40,45 +40,42 @@ public class RemoteTrackTime {
 	private static final boolean LOG = false; // Make it false for production.
 
 	private static final int UPDATE_DELAY = 1000;
-	
+
 	private Context mContext;
 	int mPosition;
-	
+
 	long mStartTimeMs;
 	int mStartPosition;
 	private boolean mPlaying;
-	
+
 	Handler mHandler = new Handler();
-	
-	
+
+
 	public interface TrackTimeListener {
-		@Deprecated 
 		public void onTrackDurationChanged(int duration);
 		public void onTrackPositionChanged(int position);
 	}
-	
+
 	TrackTimeListener mTrackTimeListener;
-	
-	
+
+
 	public RemoteTrackTime(Context context) {
 		mContext = context;
 	}
-	
+
 	public void registerAndLoadStatus() {
 		IntentFilter filter = new IntentFilter(PowerampAPI.ACTION_TRACK_POS_SYNC);
 		mContext.registerReceiver(mTrackPosSyncReceiver, filter);
-		try {
-			mContext.startService(PowerampAPI.newAPIIntent().putExtra(PowerampAPI.COMMAND, PowerampAPI.Commands.POS_SYNC));
-		} catch(Throwable th) {
-			Log.e(TAG, "", th);
-		}
-		
+
+		PowerampAPIHelper.sendPAIntent(mContext, new Intent(PowerampAPI.ACTION_API_COMMAND)
+						.putExtra(PowerampAPI.EXTRA_COMMAND, PowerampAPI.Commands.POS_SYNC));
+
 		if(mPlaying) {
 			mHandler.removeCallbacks(mTickRunnable);
 			mHandler.postDelayed(mTickRunnable, 0);
 		}
 	}
-	
+
 	public void unregister() {
 		if(mTrackPosSyncReceiver != null) {
 			try {
@@ -87,7 +84,7 @@ public class RemoteTrackTime {
 		}
 		mHandler.removeCallbacks(mTickRunnable);
 	}
-	
+
 	private BroadcastReceiver mTrackPosSyncReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -95,14 +92,13 @@ public class RemoteTrackTime {
 			if(LOG) Log.w(TAG, "mTrackPosSyncReceiver sync=" + pos);
 			updateTrackPosition(pos);
 		}
-		
+
 	};
-	
+
 	public void setTrackTimeListener(TrackTimeListener l) {
 		mTrackTimeListener = l;
 	}
 
-	// REVISIT: not used to update duration here ATM
 	public void updateTrackDuration(int duration) {
 		if(mTrackTimeListener != null) {
 			mTrackTimeListener.onTrackDurationChanged(duration);
@@ -120,11 +116,11 @@ public class RemoteTrackTime {
 			mTrackTimeListener.onTrackPositionChanged(position);
 		}
 	}
-	
+
 	protected Runnable mTickRunnable = new Runnable() {
 		@Override
 		public void run() {
-			mPosition = (int)(System.currentTimeMillis() - mStartTimeMs + 500) / 1000 + mStartPosition; 
+			mPosition = (int)(System.currentTimeMillis() - mStartTimeMs + 500) / 1000 + mStartPosition;
 			if(LOG) Log.w(TAG, "mTickRunnable mPosition=" + mPosition);
 			if(mTrackTimeListener != null) {
 				mTrackTimeListener.onTrackPositionChanged(mPosition);
@@ -133,7 +129,7 @@ public class RemoteTrackTime {
 			mHandler.postDelayed(mTickRunnable, UPDATE_DELAY);
 		}
 	};
-	
+
 	public void startSongProgress() {
 		if(!mPlaying) {
 			mStartTimeMs = System.currentTimeMillis();
@@ -143,7 +139,7 @@ public class RemoteTrackTime {
 			mPlaying = true;
 		}
 	}
-	
+
 	public void stopSongProgress() {
 		if(mPlaying) {
 			mHandler.removeCallbacks(mTickRunnable);

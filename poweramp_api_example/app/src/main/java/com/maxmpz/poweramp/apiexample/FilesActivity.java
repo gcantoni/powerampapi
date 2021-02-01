@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2011-2018 Maksim Petrov
+Copyright (C) 2011-2020 Maksim Petrov
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted for widgets, plugins, applications and other software
@@ -27,7 +27,6 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -47,11 +46,11 @@ public class FilesActivity extends ListActivity implements OnItemClickListener {
 		setContentView(R.layout.files);
 
 		mFolderId = getIntent().getLongExtra("id", 0);
-		
-		Cursor c = this.getContentResolver().query(PowerampAPI.ROOT_URI.buildUpon().appendEncodedPath("folders").appendEncodedPath(Long.toString(mFolderId)).appendEncodedPath("files").build(), 
-				new String[]{ "folder_files._id AS _id", 
-								"folder_files.name AS name", 
-								"folder_files.title_tag AS title_tag"}, null, null, "folder_files.name COLLATE NOCASE");
+
+		Cursor c = this.getContentResolver().query(PowerampAPI.ROOT_URI.buildUpon().appendEncodedPath("folders").appendEncodedPath(Long.toString(mFolderId)).appendEncodedPath("files").build(),
+				new String[]{ "folder_files._id AS _id",
+						"folder_files.name AS name",
+						"folder_files.title_tag AS title_tag"}, null, null, "folder_files.name COLLATE NOCASE");
 		startManagingCursor(c);
 
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(
@@ -61,8 +60,8 @@ public class FilesActivity extends ListActivity implements OnItemClickListener {
 				new String[] { "name", "title_tag" },
 				new int[] {android.R.id.text1, android.R.id.text2},
 				0);
-				setListAdapter(adapter);
-				
+		setListAdapter(adapter);
+
 		ListView list = (ListView)findViewById(android.R.id.list);
 		list.setOnItemClickListener(this);
 	}
@@ -78,10 +77,11 @@ public class FilesActivity extends ListActivity implements OnItemClickListener {
 				.appendEncodedPath(Long.toString(id))
 				.appendQueryParameter(PowerampAPI.PARAM_SHUFFLE, Integer.toString(PowerampAPI.ShuffleMode.SHUFFLE_SONGS));
 
-		PowerampAPIHelper.startPAService(this, new Intent(PowerampAPI.ACTION_API_COMMAND)
-						.putExtra(PowerampAPI.COMMAND, PowerampAPI.Commands.OPEN_TO_PLAY)
-						.setData(uriB.build())
-					);
+		PowerampAPIHelper.sendPAIntent(this, new Intent(PowerampAPI.ACTION_API_COMMAND)
+				.putExtra(PowerampAPI.EXTRA_COMMAND, PowerampAPI.Commands.OPEN_TO_PLAY)
+				.setData(uriB.build()),
+				MainActivity.FORCE_API_ACTIVITY
+		);
 
 		finish();
 	}

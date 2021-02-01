@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.poweramp.sampleskin">
+	xmlns:tools="http://schemas.android.com/tools"
+	package="com.poweramp.v3.sampleskin">
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/app_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+	    tools:ignore="GoogleAppIndexingWarning">
 
         <meta-data android:name="com.maxmpz.PowerampSkins" android:resource="@xml/skins"/>
 
@@ -17,6 +19,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+	        <!-- This action should be used by skin apps for their main activity intent-filter element in AndroidManifest.xml.<br>
+	             Helps future Poweramp builds (targeting Android 11/SDK=30) to find skins, as Android 11 requires some explicit action to be
+	             defined by the "plugin" apps, such as skins -->
+	        <intent-filter>
+		        <action android:name="com.maxmpz.audioplayer.SKIN_MAIN" />
+	        </intent-filter>
         </activity>
     </application>
 
